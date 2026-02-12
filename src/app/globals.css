@@ -1,26 +1,62 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  /* === Core Backgrounds (Dark Arena) === */
+  --color-bg-main: #05060A;
+  --color-bg-surface: #0D0F1A;
+  --color-bg-card: #15182A;
+  --color-border-soft: #242845;
+
+  /* === Brand Purple (Monad Identity) === */
+  --color-monad: #7C5CFF;
+  --color-monad-hover: #9A7DFF;
+  --color-monad-shadow: #3A2D75;
+  --color-monad-glow: #1A1533;
+
+  /* === Coliseum Gold (Prestige) === */
+  --color-gold: #F6D27A;
+  --color-gold-deep: #D8A94B;
+  --color-gold-shadow: #8C5E2A;
+
+  /* === Energy Blade Blue (Combat Tech) === */
+  --color-blade: #6FE7FF;
+  --color-blade-deep: #2D9CFF;
+  --color-blade-glow: #123B5A;
+
+  /* === Metallic Robot Neutrals === */
+  --color-metal: #3C3F52;
+  --color-metal-dark: #1B1E2B;
+  --color-metal-edge: #A8B0D6;
+
+  /* === Action & Betting (CTA) === */
+  --color-danger: #FF3B3B;
+  --color-danger-hover: #FF6A3B;
+  --color-warning: #FFB020;
+
+  /* === Text Colors === */
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #B8BBD0;
+  --color-text-muted: #6B6F8F;
+
+  /* === Fonts === */
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+body {
+  background: var(--color-bg-main);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans), system-ui, sans-serif;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg-surface);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-metal);
+  border-radius: 3px;
 }
