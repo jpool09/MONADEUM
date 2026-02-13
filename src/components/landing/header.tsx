@@ -1,40 +1,65 @@
 import Link from "next/link";
+import Image from "next/image";
+import { Starfield } from "./starfield";
 
 export function Header() {
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-border-soft bg-bg-main/80 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-        <Link href="/" className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-monad-shadow bg-monad-glow">
-            <span className="text-lg">⚔️</span>
-          </div>
-          <div>
-            <span className="text-lg font-bold tracking-wider text-text-primary">
-              MONADEUM
-            </span>
-          </div>
+    <header className="relative z-20 grid h-[70px] grid-cols-3 items-center bg-black px-16">
+      <Starfield />
+      {/* Logo - overflows header intentionally */}
+      <div className="relative flex items-center justify-start">
+        <Image
+          src="/images/logo.png"
+          alt="Monadeum"
+          width={150}
+          height={150}
+          className="h-[150px] w-[150px] object-contain"
+          priority
+        />
+      </div>
+
+      {/* Nav Links - centered */}
+      <nav className="flex items-center justify-center gap-8">
+        <a href="#" className="text-[14px] font-medium text-white">
+          Home
+        </a>
+        <a
+          href="#how-it-works"
+          className="text-[14px] text-[#6B6B80] transition-colors hover:text-white"
+        >
+          Features
+        </a>
+        <a
+          href="#features"
+          className="text-[14px] text-[#6B6B80] transition-colors hover:text-white"
+        >
+          Arenas
+        </a>
+        <a
+          href="#stats"
+          className="text-[14px] text-[#6B6B80] transition-colors hover:text-white"
+        >
+          Pricing
+        </a>
+        <a
+          href="#cta"
+          className="text-[14px] text-[#6B6B80] transition-colors hover:text-white"
+        >
+          Community
+        </a>
+      </nav>
+
+      {/* CTA */}
+      <div className="flex items-center justify-end gap-4">
+        <button className="w-[120px] rounded-lg border border-[#7C3AED] py-2.5 text-center text-[14px] font-medium text-[#C084FC] transition-colors hover:bg-[#7C3AED]/10">
+          Log In
+        </button>
+        <Link
+          href="/arenas"
+          className="w-[120px] rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#A855F7] py-2.5 text-center text-[14px] font-semibold text-white transition-all hover:shadow-[0_0_20px_rgba(124,58,237,0.4)]"
+        >
+          Enter Arena
         </Link>
-
-        <nav className="hidden items-center gap-8 md:flex">
-          <a href="#features" className="text-sm text-text-secondary hover:text-text-primary transition-colors">
-            Features
-          </a>
-          <a href="#how-it-works" className="text-sm text-text-secondary hover:text-text-primary transition-colors">
-            How It Works
-          </a>
-          <a href="#tokenomics" className="text-sm text-text-secondary hover:text-text-primary transition-colors">
-            $COL Token
-          </a>
-        </nav>
-
-        <div className="flex items-center gap-3">
-          <Link
-            href="/arenas"
-            className="rounded-lg bg-monad px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-monad-hover"
-          >
-            Launch App
-          </Link>
-        </div>
       </div>
     </header>
   );

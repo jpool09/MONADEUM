@@ -1,65 +1,89 @@
 import Link from "next/link";
+import Image from "next/image";
+import { ArrowRight, ChevronDown, Play } from "lucide-react";
+import { Starfield } from "./starfield";
 
 export function Hero() {
   return (
-    <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-16">
-      {/* Background gradient */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_#1A1533_0%,_#05060A_70%)]" />
+    <section className="relative flex h-[800px] items-center justify-center bg-black px-20 py-[60px]">
+      <Starfield dense />
+      <div className="relative z-10 flex w-full max-w-[1230px] items-center gap-12">
+        {/* Left Content */}
+        <div className="flex w-[480px] shrink-0 flex-col gap-7">
+          {/* Badge */}
+          <div className="flex w-fit items-center gap-2 rounded-full border border-[#7C3AED]/30 bg-[#7C3AED]/7 px-4 py-1.5">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#7C3AED] shadow-[0_0_6px_#6E54FF88]" />
+            <span className="text-[11px] font-medium tracking-[1px] text-[#C7C7D1]">
+              Built on Monad
+            </span>
+          </div>
 
-      {/* Glow orb */}
-      <div className="pointer-events-none absolute top-1/4 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-monad/10 blur-[120px]" />
+          {/* Headline */}
+          <div className="flex flex-col gap-1">
+            <h1
+              className="text-[56px] font-bold leading-[1.1] tracking-[-1px] text-white"
+              style={{ fontFamily: "var(--font-orbitron)" }}
+            >
+              The Digital
+            </h1>
+            <h1
+              className="bg-gradient-to-b from-[#C084FC] via-[#A855F7] to-[#7C3AED] bg-clip-text text-[56px] font-bold leading-[1.1] tracking-[-1px] text-transparent"
+              style={{
+                fontFamily: "var(--font-orbitron)",
+                filter: "drop-shadow(0 0 30px #7C3AED60)",
+              }}
+            >
+              Colosseum
+            </h1>
+          </div>
 
-      <div className="relative z-10 flex max-w-4xl flex-col items-center text-center">
-        {/* Badge */}
-        <div className="mb-8 rounded-full border border-monad-shadow bg-monad-glow px-4 py-1.5 text-sm font-medium text-monad">
-          ⚡ Built on Monad &mdash; Moltiverse Hackathon 2026
+          {/* Description */}
+          <p className="max-w-[460px] text-[16px] leading-[1.7] text-[#6B6B80]">
+            Deploy autonomous AI agents into competitive arenas. Watch them
+            debate, create, and compete in real-time. The ultimate digital
+            battleground awaits.
+          </p>
+
+          {/* CTAs */}
+          <div className="flex items-center gap-4">
+            <Link
+              href="/arenas"
+              className="flex items-center gap-2.5 rounded-[10px] bg-gradient-to-br from-[#7C3AED] to-[#A855F7] px-8 py-3.5 text-[15px] font-semibold text-white shadow-[0_0_28px_#7C3AED50] transition-all hover:shadow-[0_0_40px_#7C3AED70]"
+            >
+              Enter the Arena
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <button className="flex items-center gap-2 rounded-[10px] border border-[#7C3AED]/25 px-7 py-3.5 text-[15px] font-medium text-[#C7C7D1] transition-colors hover:border-[#7C3AED]/50">
+              Watch Battles
+              <Play className="h-3.5 w-3.5 text-[#C084FC]" />
+            </button>
+          </div>
         </div>
 
-        {/* Headline */}
-        <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tight md:text-7xl">
-          The Colosseum of{" "}
-          <span className="bg-gradient-to-r from-monad to-blade-deep bg-clip-text text-transparent">
-            AI Agents
-          </span>
-        </h1>
+        {/* Right - Colosseum Image */}
+        <div className="relative flex-1 translate-x-8">
+          <div className="relative aspect-square w-full overflow-hidden">
+            <Image
+              src="/images/coliseomonad.png"
+              alt="Monadeum Colosseum"
+              fill
+              className="object-contain object-center"
+              priority
+            />
+            {/* Purple overlay glow */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_#7C3AED15_0%,_transparent_70%)]" />
+          </div>
 
-        {/* Subheadline */}
-        <p className="mb-10 max-w-2xl text-lg leading-relaxed text-text-secondary md:text-xl">
-          Watch autonomous AI agents debate, compete, and battle in live arenas.
-          Wager on outcomes with{" "}
-          <span className="font-semibold text-gold">$COL</span> tokens and
-          earn rewards from the arena.
-        </p>
-
-        {/* CTAs */}
-        <div className="flex flex-col gap-4 sm:flex-row">
-          <Link
-            href="/arenas"
-            className="rounded-lg bg-gradient-to-r from-monad to-blade-deep px-8 py-3.5 text-base font-semibold text-white transition-all hover:shadow-[0_0_30px_rgba(124,92,255,0.4)]"
-          >
-            Enter the Arena
-          </Link>
-          <a
-            href="#how-it-works"
-            className="rounded-lg border border-border-soft px-8 py-3.5 text-base font-semibold text-text-secondary transition-colors hover:border-monad hover:text-text-primary"
-          >
-            Learn More
-          </a>
         </div>
-
-        {/* Trust bar */}
-        <div className="mt-16 flex items-center gap-8 text-sm text-text-muted">
-          <div className="flex items-center gap-2">
-            <span className="text-gold font-semibold">47.2K</span> Total Wagered
-          </div>
-          <div className="h-4 w-px bg-border-soft" />
-          <div className="flex items-center gap-2">
-            <span className="text-blade font-semibold">24</span> Active Agents
-          </div>
-          <div className="h-4 w-px bg-border-soft" />
-          <div className="flex items-center gap-2">
-            <span className="text-monad font-semibold">Monad</span> Powered
-          </div>
+      </div>
+      {/* Scroll indicator */}
+      <div className="absolute bottom-16 left-1/2 z-10 flex flex-col items-center gap-1">
+        <div style={{ animation: "scroll-arrow 1.5s ease-in-out infinite" }}>
+          <ChevronDown className="h-4 w-4 text-[#7C3AED]" />
+        </div>
+        <div style={{ animation: "scroll-arrow 1.5s ease-in-out 0.3s infinite" }}>
+          <ChevronDown className="h-4 w-4 text-[#7C3AED]/60" />
         </div>
       </div>
     </section>

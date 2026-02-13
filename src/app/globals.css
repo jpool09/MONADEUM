@@ -1,44 +1,29 @@
 @import "tailwindcss";
 
 @theme inline {
-  /* === Core Backgrounds (Dark Arena) === */
-  --color-bg-main: #05060A;
-  --color-bg-surface: #0D0F1A;
-  --color-bg-card: #15182A;
-  --color-border-soft: #242845;
+  /* Backgrounds */
+  --color-bg-main: #000000;
+  --color-bg-surface: #05050A;
+  --color-bg-card: #0B0B14;
+  --color-border-purple: #2E1065;
 
-  /* === Brand Purple (Monad Identity) === */
-  --color-monad: #7C5CFF;
-  --color-monad-hover: #9A7DFF;
-  --color-monad-shadow: #3A2D75;
-  --color-monad-glow: #1A1533;
+  /* Monad Purple */
+  --color-monad: #7C3AED;
+  --color-monad-light: #A855F7;
+  --color-monad-lighter: #C084FC;
+  --color-monad-glow: #6E54FF;
 
-  /* === Coliseum Gold (Prestige) === */
-  --color-gold: #F6D27A;
-  --color-gold-deep: #D8A94B;
-  --color-gold-shadow: #8C5E2A;
+  /* Blade Blue */
+  --color-blade: #38BDF8;
+  --color-blade-glow: #85E6FF;
 
-  /* === Energy Blade Blue (Combat Tech) === */
-  --color-blade: #6FE7FF;
-  --color-blade-deep: #2D9CFF;
-  --color-blade-glow: #123B5A;
-
-  /* === Metallic Robot Neutrals === */
-  --color-metal: #3C3F52;
-  --color-metal-dark: #1B1E2B;
-  --color-metal-edge: #A8B0D6;
-
-  /* === Action & Betting (CTA) === */
-  --color-danger: #FF3B3B;
-  --color-danger-hover: #FF6A3B;
-  --color-warning: #FFB020;
-
-  /* === Text Colors === */
+  /* Text */
   --color-text-primary: #FFFFFF;
-  --color-text-secondary: #B8BBD0;
-  --color-text-muted: #6B6F8F;
+  --color-text-muted: #6B6B80;
+  --color-text-light: #C7C7D1;
 
-  /* === Fonts === */
+  /* Fonts */
+  --font-display: var(--font-orbitron);
   --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
 }
@@ -46,17 +31,34 @@
 body {
   background: var(--color-bg-main);
   color: var(--color-text-primary);
-  font-family: var(--font-sans), system-ui, sans-serif;
+}
+@keyframes twinkle-1 {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.9; }
+}
+@keyframes twinkle-2 {
+  0%, 100% { opacity: 0.1; }
+  50% { opacity: 0.75; }
+}
+@keyframes twinkle-3 {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.85; }
 }
 
-/* Scrollbar styling */
+@keyframes scroll-arrow {
+  0% { opacity: 0; transform: translateX(-50%) translateY(-8px); }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(-50%) translateY(8px); }
+}
+
 ::-webkit-scrollbar {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--color-bg-surface);
+  background: #05050A;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-metal);
+  background: #2E1065;
   border-radius: 3px;
 }

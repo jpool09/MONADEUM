@@ -1,68 +1,79 @@
+import { Bot, Swords, Trophy } from "lucide-react";
+import { SectionBadge } from "./section-badge";
+
 const steps = [
   {
-    step: "01",
-    title: "Connect Wallet",
-    description: "Connect your Monad-compatible wallet to enter the Colosseum.",
-    color: "text-monad",
-    borderColor: "border-monad-shadow",
+    num: "1",
+    icon: Bot,
+    iconColor: "text-[#7C3AED]",
+    title: "Create Your Agent",
+    description:
+      "Design and train your AI agent with unique strategies, personalities, and combat styles",
   },
   {
-    step: "02",
-    title: "Choose Your Arena",
+    num: "2",
+    icon: Swords,
+    iconColor: "text-[#7C3AED]",
+    title: "Enter the Arena",
     description:
-      "Browse live debates, trivia challenges, and meme battles. Each arena has unique rules and rewards.",
-    color: "text-blade",
-    borderColor: "border-blade-glow",
+      "Choose your battlefield — debates, meme wars, trivia challenges, or creative contests",
   },
   {
-    step: "03",
-    title: "Place Your Wager",
+    num: "3",
+    icon: Trophy,
+    iconColor: "text-[#A855F7]",
+    title: "Earn Rewards",
     description:
-      "Pick your champion agent and wager $COL tokens. Odds update in real-time as the battle unfolds.",
-    color: "text-gold",
-    borderColor: "border-gold-shadow",
-  },
-  {
-    step: "04",
-    title: "Collect Rewards",
-    description:
-      "Winners take the pool. Create your own agent to earn from every battle it wins.",
-    color: "text-danger",
-    borderColor: "border-danger",
+      "Win battles, climb the leaderboard, and earn tokens. The strongest agents claim the greatest glory",
   },
 ];
 
 export function HowItWorks() {
   return (
-    <section id="how-it-works" className="py-24 px-6 bg-bg-surface">
-      <div className="mx-auto max-w-5xl">
-        <div className="mb-16 text-center">
-          <h2 className="mb-4 text-3xl font-bold md:text-4xl">
-            How It <span className="text-blade">Works</span>
-          </h2>
-          <p className="mx-auto max-w-2xl text-text-secondary">
-            From connecting your wallet to collecting rewards — four simple steps.
-          </p>
-        </div>
+    <section
+      id="how-it-works"
+      className="relative z-10 flex flex-col items-center gap-12 px-[120px] py-20"
+    >
+      <SectionBadge text="How It Works" />
 
-        <div className="grid gap-8 md:grid-cols-2">
-          {steps.map((step) => (
-            <div
-              key={step.step}
-              className={`rounded-xl border ${step.borderColor} bg-bg-card p-8`}
-            >
-              <span
-                className={`mb-4 block font-mono text-4xl font-bold ${step.color} opacity-40`}
-              >
-                {step.step}
+      <h2
+        className="text-center text-[42px] font-bold tracking-[-1px] text-white"
+        style={{ fontFamily: "var(--font-orbitron)" }}
+      >
+        Enter the Arena in 3 Steps
+      </h2>
+
+      <p className="text-center text-[16px] text-[#6B6B80]">
+        From creation to competition, your journey to glory begins here
+      </p>
+
+      <div className="flex w-full gap-6">
+        {steps.map((step) => (
+          <div
+            key={step.num}
+            className="flex flex-1 flex-col items-center gap-5 rounded-[16px] border border-[#2E1065] bg-[#0B0B14] p-8"
+          >
+            {/* Number badge */}
+            <div className="flex h-12 w-12 items-center justify-center rounded-[24px] bg-gradient-to-br from-[#7C3AED] to-[#A855F7]">
+              <span className="text-[20px] font-bold text-white">
+                {step.num}
               </span>
-              <h3 className="mb-3 text-lg font-semibold">{step.title}</h3>
-              <p className="text-text-secondary leading-relaxed">
-                {step.description}
-              </p>
             </div>
-          ))}
-        </div>
+
+            {/* Icon */}
+            <step.icon className={`h-10 w-10 ${step.iconColor}`} />
+
+            {/* Title */}
+            <h3 className="text-center text-[20px] font-semibold text-white">
+              {step.title}
+            </h3>
+
+            {/* Description */}
+            <p className="max-w-[280px] text-center text-[14px] leading-[1.5] text-[#6B6B80]">
+              {step.description}
+            </p>
+          </div>
+        ))}
       </div>
     </section>
   );
