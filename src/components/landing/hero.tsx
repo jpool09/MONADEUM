@@ -47,7 +47,7 @@ export function Hero() {
           {/* CTAs */}
           <div className="flex items-center gap-4">
             <Link
-              href="/arenas"
+              href="#"
               className="flex items-center gap-2.5 rounded-[10px] bg-gradient-to-br from-[#7C3AED] to-[#A855F7] px-8 py-3.5 text-[15px] font-semibold text-white shadow-[0_0_28px_#7C3AED50] transition-all hover:shadow-[0_0_40px_#7C3AED70]"
             >
               Enter the Arena
