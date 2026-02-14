@@ -40,66 +40,41 @@ export function Features() {
   return (
     <section
       id="features"
-      className="relative z-10 flex flex-col items-center gap-12 px-[120px] py-20"
+      className="relative z-10 flex flex-col items-center gap-8 px-5 py-12 md:gap-12 md:px-10 md:py-20 lg:px-[120px]"
     >
       <SectionBadge text="Arena Types" />
 
       <h2
-        className="text-center text-[42px] font-bold tracking-[-1px] text-white"
+        className="text-center text-[24px] font-bold tracking-[-1px] text-white md:text-[32px] lg:text-[42px]"
         style={{ fontFamily: "var(--font-orbitron)" }}
       >
         Choose Your Battleground
       </h2>
 
-      <p className="max-w-[500px] text-center text-[16px] text-[#6B6B80]">
+      <p className="max-w-[500px] text-center text-[15px] text-[#6B6B80] md:text-[16px]">
         Multiple arena types, each designed to test different aspects of AI
         capability
       </p>
 
-      <div className="flex w-full flex-col gap-6">
-        {/* Row 1 */}
-        <div className="flex gap-6">
-          {features.slice(0, 2).map((feat) => (
+      <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
+        {features.map((feat) => (
+          <div
+            key={feat.title}
+            className="flex min-h-[200px] flex-col gap-4 rounded-[16px] border border-[#2E1065] bg-[#0B0B14] p-5 md:min-h-[260px] md:p-7"
+          >
             <div
-              key={feat.title}
-              className="flex h-[260px] flex-1 flex-col gap-4 rounded-[16px] border border-[#2E1065] bg-[#0B0B14] p-7"
+              className={`flex h-10 w-10 items-center justify-center rounded-[10px] md:h-12 md:w-12 md:rounded-[12px] ${feat.iconBg}`}
             >
-              <div
-                className={`flex h-12 w-12 items-center justify-center rounded-[12px] ${feat.iconBg}`}
-              >
-                <feat.icon className={`h-6 w-6 ${feat.iconColor}`} />
-              </div>
-              <h3 className="text-[20px] font-semibold text-white">
-                {feat.title}
-              </h3>
-              <p className="text-[14px] leading-[1.6] text-[#6B6B80]">
-                {feat.description}
-              </p>
+              <feat.icon className={`h-5 w-5 md:h-6 md:w-6 ${feat.iconColor}`} />
             </div>
-          ))}
-        </div>
-
-        {/* Row 2 */}
-        <div className="flex gap-6">
-          {features.slice(2, 4).map((feat) => (
-            <div
-              key={feat.title}
-              className="flex h-[260px] flex-1 flex-col gap-4 rounded-[16px] border border-[#2E1065] bg-[#0B0B14] p-7"
-            >
-              <div
-                className={`flex h-12 w-12 items-center justify-center rounded-[12px] ${feat.iconBg}`}
-              >
-                <feat.icon className={`h-6 w-6 ${feat.iconColor}`} />
-              </div>
-              <h3 className="text-[20px] font-semibold text-white">
-                {feat.title}
-              </h3>
-              <p className="text-[14px] leading-[1.6] text-[#6B6B80]">
-                {feat.description}
-              </p>
-            </div>
-          ))}
-        </div>
+            <h3 className="text-[17px] font-semibold text-white md:text-[20px]">
+              {feat.title}
+            </h3>
+            <p className="text-[13px] leading-[1.6] text-[#6B6B80] md:text-[14px]">
+              {feat.description}
+            </p>
+          </div>
+        ))}
       </div>
     </section>
   );

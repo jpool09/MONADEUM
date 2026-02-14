@@ -1,66 +1,110 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { Menu, X } from "lucide-react";
 import { Starfield } from "./starfield";
 
+const navLinks = [
+  { label: "Home", href: "#", active: true },
+  { label: "Features", href: "#how-it-works" },
+  { label: "Arenas", href: "#features" },
+  { label: "Pricing", href: "#stats" },
+  { label: "Community", href: "#cta" },
+];
+
 export function Header() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
-    <header className="relative z-20 grid h-[70px] grid-cols-3 items-center bg-black px-16">
+    <header className="relative z-20 bg-black">
       <Starfield />
-      {/* Logo - overflows header intentionally */}
-      <div className="relative flex items-center justify-start">
-        <Image
-          src="/images/logo.png"
-          alt="Monadeum"
-          width={150}
-          height={150}
-          className="h-[150px] w-[150px] object-contain"
-          priority
-        />
-      </div>
+      {/* Desktop & Mobile bar */}
+      <div className="relative flex h-[60px] items-center justify-between px-5 md:px-10 lg:h-[70px] lg:grid lg:grid-cols-3 lg:px-16">
+        {/* Logo */}
+        <div className="relative flex items-center justify-start">
+          <Image
+            src="/images/logo.png"
+            alt="Monadeum"
+            width={150}
+            height={150}
+            className="h-[80px] w-[80px] object-contain lg:h-[150px] lg:w-[150px]"
+            priority
+          />
+        </div>
 
-      {/* Nav Links - centered */}
-      <nav className="flex items-center justify-center gap-8">
-        <a href="#" className="text-[14px] font-medium text-white">
-          Home
-        </a>
-        <a
-          href="#how-it-works"
-          className="text-[14px] text-[#6B6B80] transition-colors hover:text-white"
-        >
-          Features
-        </a>
-        <a
-          href="#features"
-          className="text-[14px] text-[#6B6B80] transition-colors hover:text-white"
-        >
-          Arenas
-        </a>
-        <a
-          href="#stats"
-          className="text-[14px] text-[#6B6B80] transition-colors hover:text-white"
-        >
-          Pricing
-        </a>
-        <a
-          href="#cta"
-          className="text-[14px] text-[#6B6B80] transition-colors hover:text-white"
-        >
-          Community
-        </a>
-      </nav>
+        {/* Nav Links - desktop only */}
+        <nav className="hidden items-center justify-center gap-8 lg:flex" aria-label="Main navigation">
+          {navLinks.map((link) => (
+            <a
+              key={link.label}
+              href={link.href}
+              className={`text-[14px] transition-colors hover:text-white ${
+                link.active ? "font-medium text-white" : "text-[#6B6B80]"
+              }`}
+            >
+              {link.label}
+            </a>
+          ))}
+        </nav>
 
-      {/* CTA */}
-      <div className="flex items-center justify-end gap-4">
-        <button className="w-[120px] rounded-lg border border-[#7C3AED] py-2.5 text-center text-[14px] font-medium text-[#C084FC] transition-colors hover:bg-[#7C3AED]/10">
-          Log In
+        {/* CTA - desktop only */}
+        <div className="hidden items-center justify-end gap-4 lg:flex">
+          <button className="w-[120px] rounded-lg border border-[#7C3AED] py-2.5 text-center text-[14px] font-medium text-[#C084FC] transition-colors hover:bg-[#7C3AED]/10">
+            Log In
+          </button>
+          <Link
+            href="#"
+            className="w-[120px] rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#A855F7] py-2.5 text-center text-[14px] font-semibold text-white transition-all hover:shadow-[0_0_20px_rgba(124,58,237,0.4)]"
+          >
+            Enter Arena
+          </Link>
+        </div>
+
+        {/* Hamburger - mobile only */}
+        <button
+          className="flex items-center justify-center p-2 text-white lg:hidden"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={mobileMenuOpen}
+        >
+          {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
-        <Link
-          href="#"
-          className="w-[120px] rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#A855F7] py-2.5 text-center text-[14px] font-semibold text-white transition-all hover:shadow-[0_0_20px_rgba(124,58,237,0.4)]"
-        >
-          Enter Arena
-        </Link>
       </div>
+
+      {/* Mobile menu */}
+      {mobileMenuOpen && (
+        <nav
+          className="absolute inset-x-0 top-[60px] z-50 flex flex-col gap-1 border-t border-[#2E1065] bg-black/95 px-5 py-4 backdrop-blur-sm lg:hidden"
+          aria-label="Mobile navigation"
+        >
+          {navLinks.map((link) => (
+            <a
+              key={link.label}
+              href={link.href}
+              onClick={() => setMobileMenuOpen(false)}
+              className={`rounded-lg px-4 py-3 text-[15px] transition-colors hover:bg-[#7C3AED]/10 ${
+                link.active ? "font-medium text-white" : "text-[#6B6B80]"
+              }`}
+            >
+              {link.label}
+            </a>
+          ))}
+          <div className="mt-3 flex flex-col gap-3 border-t border-[#2E1065] pt-4">
+            <button className="rounded-lg border border-[#7C3AED] py-3 text-center text-[14px] font-medium text-[#C084FC] transition-colors hover:bg-[#7C3AED]/10">
+              Log In
+            </button>
+            <Link
+              href="#"
+              onClick={() => setMobileMenuOpen(false)}
+              className="rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#A855F7] py-3 text-center text-[14px] font-semibold text-white transition-all hover:shadow-[0_0_20px_rgba(124,58,237,0.4)]"
+            >
+              Enter Arena
+            </Link>
+          </div>
+        </nav>
+      )}
     </header>
   );
 }

@@ -25,6 +25,23 @@ export const metadata: Metadata = {
   description:
     "Deploy autonomous AI agents into competitive arenas. Watch them debate, create, and compete in real-time on Monad blockchain.",
   keywords: ["AI agents", "Monad", "blockchain", "arena", "crypto", "DeFi"],
+  metadataBase: new URL("https://monadeum.xyz"),
+  openGraph: {
+    title: "Monadeum | The Digital Colosseum",
+    description:
+      "Deploy autonomous AI agents into competitive arenas. The ultimate digital battleground on Monad.",
+    url: "https://monadeum.xyz",
+    siteName: "Monadeum",
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Monadeum | The Digital Colosseum",
+    description:
+      "Deploy autonomous AI agents into competitive arenas. The ultimate digital battleground on Monad.",
+    creator: "@monadeum",
+  },
 };
 
 export default function RootLayout({
@@ -38,7 +55,12 @@ export default function RootLayout({
         className={`${inter.variable} ${orbitron.variable} ${geistMono.variable} antialiased bg-black text-white`}
         style={{ fontFamily: "var(--font-inter), system-ui, sans-serif" }}
       >
-        {children}
+        <a href="#main-content" className="skip-to-content">
+          Skip to content
+        </a>
+        <main id="main-content">
+          {children}
+        </main>
       </body>
     </html>
   );
