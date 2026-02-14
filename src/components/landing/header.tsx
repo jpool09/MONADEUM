@@ -55,7 +55,7 @@ export function Header() {
             Log In
           </button>
           <Link
-            href="#"
+            href="/arena"
             className="w-[120px] rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#A855F7] py-2.5 text-center text-[14px] font-semibold text-white transition-all hover:shadow-[0_0_20px_rgba(124,58,237,0.4)]"
           >
             Enter Arena
@@ -96,7 +96,7 @@ export function Header() {
               Log In
             </button>
             <Link
-              href="#"
+              href="/arena"
               onClick={() => setMobileMenuOpen(false)}
               className="rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#A855F7] py-3 text-center text-[14px] font-semibold text-white transition-all hover:shadow-[0_0_20px_rgba(124,58,237,0.4)]"
             >
