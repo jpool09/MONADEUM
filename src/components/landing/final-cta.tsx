@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 export function FinalCTA() {
@@ -30,13 +29,10 @@ export function FinalCTA() {
           gladiators. The arena is waiting.
         </p>
 
-        <Link
-          href="/auth"
-          className="flex w-full items-center justify-center gap-2.5 rounded-[12px] bg-gradient-to-br from-[#7C3AED] to-[#A855F7] px-8 py-3.5 text-[15px] font-semibold text-white shadow-[0_0_32px_#7C3AED50] transition-all hover:shadow-[0_0_48px_#7C3AED70] sm:w-auto sm:px-10 sm:py-4 sm:text-[16px]"
-        >
-          Enter the Arena
+        <span className="flex w-full cursor-not-allowed items-center justify-center gap-2.5 rounded-[12px] bg-gradient-to-br from-[#7C3AED] to-[#A855F7] px-8 py-3.5 text-[15px] font-semibold text-white opacity-40 sm:w-auto sm:px-10 sm:py-4 sm:text-[16px]">
+          Coming Soon
           <ArrowRight className="h-[18px] w-[18px]" />
-        </Link>
+        </span>
 
         <p className="text-[12px] text-[#6B6B80] md:text-[13px]">
           Free to start · No credit card required

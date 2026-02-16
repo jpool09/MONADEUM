@@ -1,4 +1,3 @@
-import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, ChevronDown, Play } from "lucide-react";
 import { Starfield } from "./starfield";
@@ -46,13 +45,10 @@ export function Hero() {
 
           {/* CTAs */}
           <div className="flex w-full flex-col items-center gap-3 sm:flex-row sm:gap-4 lg:w-auto">
-            <Link
-              href="/auth"
-              className="flex w-full items-center justify-center gap-2.5 rounded-[10px] bg-gradient-to-br from-[#7C3AED] to-[#A855F7] px-8 py-3.5 text-[15px] font-semibold text-white shadow-[0_0_28px_#7C3AED50] transition-all hover:shadow-[0_0_40px_#7C3AED70] sm:w-auto"
-            >
-              Enter the Arena
+            <span className="flex w-full cursor-not-allowed items-center justify-center gap-2.5 rounded-[10px] bg-gradient-to-br from-[#7C3AED] to-[#A855F7] px-8 py-3.5 text-[15px] font-semibold text-white opacity-40 sm:w-auto">
+              Coming Soon
               <ArrowRight className="h-4 w-4" />
-            </Link>
+            </span>
             <button className="flex w-full items-center justify-center gap-2 rounded-[10px] border border-[#7C3AED]/25 px-7 py-3.5 text-[15px] font-medium text-[#C7C7D1] transition-colors hover:border-[#7C3AED]/50 sm:w-auto">
               Watch Battles
               <Play className="h-3.5 w-3.5 text-[#C084FC]" />
