@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Swords, RotateCcw } from "lucide-react";
+import { ArrowLeft, Swords, RotateCcw, Zap, CircleDollarSign } from "lucide-react";
 import { Starfield } from "@/components/landing/starfield";
 import { EmberParticles } from "./ember-particles";
 import { FighterCard } from "./fighter-card";
@@ -12,6 +13,7 @@ import { BattleLog, type LogEntry } from "./battle-log";
 import { BettingPanel } from "./betting-panel";
 import { VictoryScreen } from "./victory-screen";
 import { ROSTER, type Fighter } from "@/lib/data/fighters";
+import { LIVE_FIGHTS } from "@/lib/data/mock-data";
 
 const ATTACK_NAMES = [
   "Heavy Strike",
@@ -20,9 +22,34 @@ const ATTACK_NAMES = [
   "Counter Attack",
   "Crushing Blow",
   "Fury Combo",
+  "Shield Bash",
+  "Venom Strike",
+  "Shadow Step",
+  "Infernal Blast",
+  "Thunder Clap",
+  "Chain Lightning",
 ];
 
-type BattlePhase = "selection" | "countdown" | "fighting" | "victory";
+const THINKING_MSGS = [
+  "is analyzing opponent...",
+  "is calculating next move...",
+  "is evaluating weak points...",
+  "is looking for an opening...",
+  "is studying attack patterns...",
+  "is preparing a strategy...",
+  "is reading opponent's stance...",
+  "is charging up energy...",
+];
+
+const DODGE_MSGS = [
+  "dodges at the last second!",
+  "blocks the attack!",
+  "sidesteps gracefully!",
+  "parries with precision!",
+  "evades with incredible reflexes!",
+];
+
+type BattlePhase = "selection" | "prebet" | "countdown" | "fighting" | "victory";
 
 function calcOdds(left: Fighter, right: Fighter) {
   const lPower = left.stats.atk + left.stats.def * 0.5 + left.stats.spd * 0.3;
@@ -36,13 +63,23 @@ function calcOdds(left: Fighter, right: Fighter) {
   };
 }
 
-function calcDamage(attacker: Fighter, defender: Fighter): number {
+function calcDamage(attacker: Fighter, defender: Fighter): { damage: number; isCrit: boolean; isDodge: boolean } {
+  // 15% dodge chance based on defender speed
+  if (Math.random() < 0.12 + defender.stats.spd * 0.0005) {
+    return { damage: 0, isCrit: false, isDodge: true };
+  }
   const rand = 0.7 + Math.random() * 0.6;
-  const raw = attacker.stats.atk * rand - defender.stats.def * 0.3;
-  return Math.max(5, Math.round(raw));
+  const isCrit = Math.random() < 0.12;
+  const critMult = isCrit ? 1.8 : 1;
+  const raw = attacker.stats.atk * rand * 0.15 * critMult - defender.stats.def * 0.08;
+  return { damage: Math.max(3, Math.round(raw)), isCrit, isDodge: false };
 }
 
 export function BattleScene() {
+  const searchParams = useSearchParams();
+  const watchFightId = searchParams.get("watch");
+  const isSpectating = !!watchFightId;
+
   const [leftFighter, setLeftFighter] = useState<Fighter | null>(null);
   const [rightFighter, setRightFighter] = useState<Fighter | null>(null);
   const [selectingSide, setSelectingSide] = useState<"left" | "right">("left");
@@ -60,6 +97,12 @@ export function BattleScene() {
   const [winner, setWinner] = useState<"left" | "right" | null>(null);
   const [turnCount, setTurnCount] = useState(0);
   const [totalDamage, setTotalDamage] = useState(0);
+
+  // Pre-bet state
+  const [preBetSide, setPreBetSide] = useState<"left" | "right" | null>(null);
+  const [preBetAmount, setPreBetAmount] = useState("");
+  const [preBetCurrency, setPreBetCurrency] = useState<"MON" | "GLADI">("MON");
+  const [userBet, setUserBet] = useState<{ side: "left" | "right"; amount: number; currency: string } | null>(null);
 
   const logIdRef = useRef(0);
   const battleActiveRef = useRef(false);
@@ -89,13 +132,47 @@ export function BattleScene() {
 
   const bothSelected = leftFighter && rightFighter;
 
+  // Auto-setup for live fight spectating
+  useEffect(() => {
+    if (!watchFightId) return;
+    const fight = LIVE_FIGHTS.find((f) => f.id === watchFightId);
+    if (!fight) return;
+
+    setLeftFighter(fight.fighter1);
+    setRightFighter(fight.fighter2);
+    setLeftHp(fight.f1Hp);
+    setRightHp(fight.f2Hp);
+
+    // Seed battle log with prior entries so it feels like joining mid-fight
+    const priorEntries: LogEntry[] = [
+      { id: 1, type: "system", message: "FIGHT!", timestamp: Date.now() - 45000 },
+      { id: 2, type: "attack", message: `uses Heavy Strike! → ${fight.fighter2.name} takes 8 damage`, fighterName: fight.fighter1.name, fighterColor: fight.fighter1.accentColor, timestamp: Date.now() - 42000 },
+      { id: 3, type: "defend", message: `uses Swift Slash! → ${fight.fighter1.name} dodges at the last second!`, fighterName: fight.fighter2.name, fighterColor: fight.fighter2.accentColor, timestamp: Date.now() - 38000 },
+      { id: 4, type: "critical", message: `uses Fury Combo! CRITICAL HIT! → ${fight.fighter1.name} takes 14 damage`, fighterName: fight.fighter2.name, fighterColor: fight.fighter2.accentColor, timestamp: Date.now() - 33000 },
+      { id: 5, type: "attack", message: `uses Shield Bash! → ${fight.fighter2.name} takes 9 damage`, fighterName: fight.fighter1.name, fighterColor: fight.fighter1.accentColor, timestamp: Date.now() - 28000 },
+      { id: 6, type: "attack", message: `uses Venom Strike! → ${fight.fighter1.name} takes 7 damage`, fighterName: fight.fighter2.name, fighterColor: fight.fighter2.accentColor, timestamp: Date.now() - 23000 },
+      { id: 7, type: "defend", message: `uses Thunder Clap! → ${fight.fighter2.name} parries with precision!`, fighterName: fight.fighter1.name, fighterColor: fight.fighter1.accentColor, timestamp: Date.now() - 18000 },
+      { id: 8, type: "critical", message: `uses Infernal Blast! CRITICAL HIT! → ${fight.fighter2.name} takes 16 damage`, fighterName: fight.fighter1.name, fighterColor: fight.fighter1.accentColor, timestamp: Date.now() - 12000 },
+      { id: 9, type: "attack", message: `uses Counter Attack! → ${fight.fighter1.name} takes 10 damage`, fighterName: fight.fighter2.name, fighterColor: fight.fighter2.accentColor, timestamp: Date.now() - 7000 },
+    ];
+    setLogEntries(priorEntries);
+    logIdRef.current = priorEntries.length;
+    setTurnCount(5);
+
+    // Small delay so the UI renders the fighters before starting
+    const timer = setTimeout(() => {
+      setPhase("fighting");
+    }, 500);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watchFightId]);
+
   function handleSelect(fighter: Fighter) {
-    if (selectingSide === "left") {
-      setLeftFighter(fighter);
-      setSelectingSide("right");
-    } else {
-      setRightFighter(fighter);
-    }
+    // Single fighter selection: pick yours, opponent auto-assigned
+    setLeftFighter(fighter);
+    const opponents = ROSTER.filter((f) => f.id !== fighter.id);
+    const randomOpponent = opponents[Math.floor(Math.random() * opponents.length)];
+    setRightFighter(randomOpponent);
   }
 
   function handleReset() {
@@ -115,16 +192,30 @@ export function BattleScene() {
     setWinner(null);
     setTurnCount(0);
     setTotalDamage(0);
+    setPreBetSide(null);
+    setPreBetAmount("");
+    setPreBetCurrency("MON");
+    setUserBet(null);
     logIdRef.current = 0;
   }
 
-  // Start countdown when both fighters are selected
+  function handlePlacePreBet() {
+    if (!preBetSide || !preBetAmount) return;
+    setUserBet({ side: preBetSide, amount: Number(preBetAmount), currency: preBetCurrency });
+    setPhase("countdown");
+  }
+
+  function handleSkipBet() {
+    setPhase("countdown");
+  }
+
+  // Show pre-bet when both fighters are selected (new fights only)
   useEffect(() => {
-    if (bothSelected && phase === "selection") {
-      const timer = setTimeout(() => setPhase("countdown"), 800);
+    if (bothSelected && phase === "selection" && !isSpectating) {
+      const timer = setTimeout(() => setPhase("prebet"), 800);
       return () => clearTimeout(timer);
     }
-  }, [bothSelected, phase]);
+  }, [bothSelected, phase, isSpectating]);
 
   // Countdown timer
   useEffect(() => {
@@ -157,184 +248,126 @@ export function BattleScene() {
     const firstFighter = leftFirst ? leftFighter : rightFighter;
     const secondFighter = leftFirst ? rightFighter : leftFighter;
 
-    function runTurn(
+    function pickRandom<T>(arr: T[]): T {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    async function executeAttack(
       attackerSide: "left" | "right",
+      defenderSide: "left" | "right",
       attacker: Fighter,
       defender: Fighter,
       defHp: number,
-    ): { newHp: number; damage: number } {
-      const damage = calcDamage(attacker, defender);
-      const attackName =
-        ATTACK_NAMES[Math.floor(Math.random() * ATTACK_NAMES.length)];
+    ): Promise<{ newHp: number; damageDealt: number; ended: boolean }> {
+      const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+      // Thinking phase
+      addLog("thinking", pickRandom(THINKING_MSGS), attacker.name, attacker.accentColor);
+      setAttackingSide(null);
+      setDamagedSide(null);
+      setLeftDamageText(undefined);
+      setRightDamageText(undefined);
+
+      await wait(1200 + Math.random() * 800);
+      if (!battleActiveRef.current) return { newHp: defHp, damageDealt: 0, ended: true };
+
+      const { damage, isCrit, isDodge } = calcDamage(attacker, defender);
+      const attackName = pickRandom(ATTACK_NAMES);
+
+      setAttackingSide(attackerSide);
+
+      if (isDodge) {
+        // Dodge - no damage
+        setDamagedSide(null);
+        addLog("defend", `uses ${attackName}! → ${defender.name} ${pickRandom(DODGE_MSGS)}`, attacker.name, attacker.accentColor);
+
+        await wait(800);
+        if (!battleActiveRef.current) return { newHp: defHp, damageDealt: 0, ended: true };
+        setAttackingSide(null);
+        await wait(600);
+        return { newHp: defHp, damageDealt: 0, ended: false };
+      }
+
+      // Hit lands
       const newHp = Math.max(0, defHp - damage);
-      return { newHp, damage };
+      setDamagedSide(defenderSide);
+
+      if (defenderSide === "left") {
+        setLeftDamageText(isCrit ? `CRIT -${damage}` : `-${damage}`);
+        setLeftHp(newHp);
+      } else {
+        setRightDamageText(isCrit ? `CRIT -${damage}` : `-${damage}`);
+        setRightHp(newHp);
+      }
+
+      addLog(
+        isCrit ? "critical" : "attack",
+        `uses ${attackName}!${isCrit ? " CRITICAL HIT!" : ""} → ${defender.name} takes ${damage} damage`,
+        attacker.name,
+        attacker.accentColor
+      );
+
+      await wait(700);
+      if (!battleActiveRef.current) return { newHp, damageDealt: damage, ended: true };
+      setAttackingSide(null);
+      setDamagedSide(null);
+      setLeftDamageText(undefined);
+      setRightDamageText(undefined);
+
+      if (newHp <= 0) {
+        addLog("victory", "is defeated!", defender.name, defender.accentColor);
+        addLog("victory", "wins the match!", attacker.name, attacker.accentColor);
+        return { newHp, damageDealt: damage, ended: true };
+      }
+
+      await wait(700 + Math.random() * 400);
+      return { newHp, damageDealt: damage, ended: false };
     }
 
     async function runBattle() {
-      // Delay helper
-      const wait = (ms: number) =>
-        new Promise((r) => setTimeout(r, ms));
+      const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
       while (currentLeftHp > 0 && currentRightHp > 0 && battleActiveRef.current) {
         turn++;
+        setTurnCount(turn);
 
         // --- First attacker ---
-        const firstAttackerFighter = firstFighter;
-        const firstDefenderFighter = secondFighter;
-
-        addLog(
-          "thinking",
-          "is analyzing opponent...",
-          firstAttackerFighter.name,
-          firstAttackerFighter.accentColor
-        );
-        setAttackingSide(null);
-        setDamagedSide(null);
-        setLeftDamageText(undefined);
-        setRightDamageText(undefined);
-
-        await wait(1000);
-        if (!battleActiveRef.current) return;
-
         const defHp1 = first === "left" ? currentRightHp : currentLeftHp;
-        const { newHp: hp1, damage: dmg1 } = runTurn(
-          first,
-          firstAttackerFighter,
-          firstDefenderFighter,
-          defHp1
-        );
-        dmgTotal += dmg1;
-
-        const attackName1 =
-          ATTACK_NAMES[Math.floor(Math.random() * ATTACK_NAMES.length)];
-
-        setAttackingSide(first);
-        setDamagedSide(second);
-
-        if (second === "left") {
-          setLeftDamageText(`-${dmg1}`);
-          setLeftHp(hp1);
-          currentLeftHp = hp1;
-        } else {
-          setRightDamageText(`-${dmg1}`);
-          setRightHp(hp1);
-          currentRightHp = hp1;
-        }
-
-        addLog(
-          dmg1 > 20 ? "critical" : "attack",
-          `uses ${attackName1}! → ${firstDefenderFighter.name} takes ${dmg1} damage`,
-          firstAttackerFighter.name,
-          firstAttackerFighter.accentColor
-        );
-
-        setTurnCount(turn);
-        setTotalDamage(dmgTotal);
-
-        await wait(600);
+        const result1 = await executeAttack(first, second, firstFighter, secondFighter, defHp1);
         if (!battleActiveRef.current) return;
-        setAttackingSide(null);
-        setDamagedSide(null);
-        setLeftDamageText(undefined);
-        setRightDamageText(undefined);
 
-        // Check if defender died
-        if (hp1 <= 0) {
+        dmgTotal += result1.damageDealt;
+        setTotalDamage(dmgTotal);
+        if (second === "left") currentLeftHp = result1.newHp;
+        else currentRightHp = result1.newHp;
+
+        if (result1.ended && result1.newHp <= 0) {
           setWinner(first);
           setPhase("victory");
-          addLog(
-            "victory",
-            `is defeated!`,
-            firstDefenderFighter.name,
-            firstDefenderFighter.accentColor
-          );
-          addLog(
-            "victory",
-            `wins the match!`,
-            firstAttackerFighter.name,
-            firstAttackerFighter.accentColor
-          );
           battleActiveRef.current = false;
           return;
         }
 
-        await wait(900);
         if (!battleActiveRef.current) return;
 
         // --- Second attacker ---
-        addLog(
-          "thinking",
-          "is analyzing opponent...",
-          secondFighter.name,
-          secondFighter.accentColor
-        );
-
-        await wait(1000);
-        if (!battleActiveRef.current) return;
-
         const defHp2 = second === "left" ? currentRightHp : currentLeftHp;
-        const { newHp: hp2, damage: dmg2 } = runTurn(
-          second,
-          secondFighter,
-          firstFighter,
-          defHp2
-        );
-        dmgTotal += dmg2;
-
-        const attackName2 =
-          ATTACK_NAMES[Math.floor(Math.random() * ATTACK_NAMES.length)];
-
-        setAttackingSide(second);
-        setDamagedSide(first);
-
-        if (first === "left") {
-          setLeftDamageText(`-${dmg2}`);
-          setLeftHp(hp2);
-          currentLeftHp = hp2;
-        } else {
-          setRightDamageText(`-${dmg2}`);
-          setRightHp(hp2);
-          currentRightHp = hp2;
-        }
-
-        addLog(
-          dmg2 > 20 ? "critical" : "attack",
-          `uses ${attackName2}! → ${firstFighter.name} takes ${dmg2} damage`,
-          secondFighter.name,
-          secondFighter.accentColor
-        );
-
-        setTurnCount(turn);
-        setTotalDamage(dmgTotal);
-
-        await wait(600);
+        const result2 = await executeAttack(second, first, secondFighter, firstFighter, defHp2);
         if (!battleActiveRef.current) return;
-        setAttackingSide(null);
-        setDamagedSide(null);
-        setLeftDamageText(undefined);
-        setRightDamageText(undefined);
 
-        // Check if defender died
-        if (hp2 <= 0) {
+        dmgTotal += result2.damageDealt;
+        setTotalDamage(dmgTotal);
+        if (first === "left") currentLeftHp = result2.newHp;
+        else currentRightHp = result2.newHp;
+
+        if (result2.ended && result2.newHp <= 0) {
           setWinner(second);
           setPhase("victory");
-          addLog(
-            "victory",
-            `is defeated!`,
-            firstFighter.name,
-            firstFighter.accentColor
-          );
-          addLog(
-            "victory",
-            `wins the match!`,
-            secondFighter.name,
-            secondFighter.accentColor
-          );
           battleActiveRef.current = false;
           return;
         }
 
-        await wait(900);
+        await wait(500);
       }
     }
 
@@ -402,12 +435,6 @@ export function BattleScene() {
 
         <div className="flex items-center gap-2">
           <Swords className="h-4 w-4 text-[#7C3AED]" />
-          <span
-            className="text-[11px] font-bold tracking-[3px] text-[#6B6B80] md:text-[13px]"
-            style={{ fontFamily: "var(--font-orbitron)" }}
-          >
-            MONADEUM ARENA
-          </span>
         </div>
 
         {bothSelected ? (
@@ -431,9 +458,7 @@ export function BattleScene() {
             {/* Title */}
             <div className="flex flex-col items-center gap-2">
               <span className="text-[10px] font-medium uppercase tracking-[3px] text-[#7C3AED] md:text-[12px]">
-                {selectingSide === "left"
-                  ? "Choose Your Champion"
-                  : "Choose Your Opponent"}
+                Choose Your Champion
               </span>
               <h1
                 className="text-center text-[20px] font-bold tracking-[-0.5px] text-white md:text-[28px] lg:text-[32px]"
@@ -441,77 +466,26 @@ export function BattleScene() {
               >
                 Select Fighter
               </h1>
-            </div>
-
-            {/* Selection slots indicator */}
-            <div className="flex items-center gap-4 md:gap-6">
-              <div
-                className={`flex h-12 w-28 items-center justify-center rounded-[10px] border text-[12px] font-bold tracking-[1px] transition-all md:h-14 md:w-36 md:text-[13px] ${
-                  leftFighter
-                    ? "border-[#7C3AED]/50 bg-[#7C3AED]/10 text-white"
-                    : selectingSide === "left"
-                      ? "border-[#7C3AED] bg-[#7C3AED]/5 text-[#7C3AED] shadow-[0_0_20px_#7C3AED30]"
-                      : "border-[#2E1065] bg-[#0B0B14] text-[#6B6B80]"
-                }`}
-                style={{ fontFamily: "var(--font-orbitron)" }}
-              >
-                {leftFighter ? leftFighter.name.split(" ")[0] : "PLAYER 1"}
-              </div>
-
-              <span
-                className="text-[16px] font-black text-[#6B6B80] md:text-[20px]"
-                style={{ fontFamily: "var(--font-orbitron)" }}
-              >
-                VS
-              </span>
-
-              <div
-                className={`flex h-12 w-28 items-center justify-center rounded-[10px] border text-[12px] font-bold tracking-[1px] transition-all md:h-14 md:w-36 md:text-[13px] ${
-                  rightFighter
-                    ? "border-[#FF6B35]/50 bg-[#FF6B35]/10 text-white"
-                    : selectingSide === "right"
-                      ? "border-[#FF6B35] bg-[#FF6B35]/5 text-[#FF6B35] shadow-[0_0_20px_#FF6B3530]"
-                      : "border-[#2E1065] bg-[#0B0B14] text-[#6B6B80]"
-                }`}
-                style={{ fontFamily: "var(--font-orbitron)" }}
-              >
-                {rightFighter ? rightFighter.name.split(" ")[0] : "PLAYER 2"}
-              </div>
+              <p className="text-[12px] text-[#6B6B80]">
+                Your opponent will be auto-matched
+              </p>
             </div>
 
             {/* Fighter roster grid */}
             <div className="grid w-full grid-cols-3 gap-3 md:gap-5">
               {ROSTER.map((fighter) => {
-                const isSelected =
-                  leftFighter?.id === fighter.id ||
-                  rightFighter?.id === fighter.id;
-                const isDisabled = isSelected;
-
                 return (
                   <button
                     key={fighter.id}
-                    onClick={() => !isDisabled && handleSelect(fighter)}
-                    disabled={isDisabled}
-                    className={`group relative flex flex-col items-center gap-2 rounded-[16px] border p-3 transition-all md:gap-3 md:p-5 ${
-                      isSelected
-                        ? "border-[#7C3AED]/30 bg-[#7C3AED]/5 opacity-40"
-                        : "border-[#2E1065] bg-[#0B0B14]/80 hover:border-[#7C3AED]/60 hover:bg-[#0B0B14] hover:shadow-[0_0_30px_#7C3AED20]"
-                    }`}
+                    onClick={() => handleSelect(fighter)}
+                    className="group relative flex flex-col items-center gap-2 rounded-[16px] border border-[#2E1065] bg-[#0B0B14]/80 p-3 transition-all hover:border-[#7C3AED]/60 hover:bg-[#0B0B14] hover:shadow-[0_0_30px_#7C3AED20] md:gap-3 md:p-5"
                   >
                     {/* Fighter image */}
                     <div
-                      className={`relative h-[140px] w-[100px] md:h-[220px] md:w-[160px] lg:h-[280px] lg:w-[200px] ${
-                        !isSelected
-                          ? "transition-transform duration-300 group-hover:scale-105"
-                          : ""
-                      }`}
-                      style={
-                        !isSelected
-                          ? {
-                              filter: `drop-shadow(0 0 15px ${fighter.glowColor}40)`,
-                            }
-                          : undefined
-                      }
+                      className="relative h-[140px] w-[100px] transition-transform duration-300 group-hover:scale-105 md:h-[220px] md:w-[160px] lg:h-[280px] lg:w-[200px]"
+                      style={{
+                        filter: `drop-shadow(0 0 15px ${fighter.glowColor}40)`,
+                      }}
                     >
                       <Image
                         src={fighter.image}
@@ -553,12 +527,6 @@ export function BattleScene() {
                       ))}
                     </div>
 
-                    {/* Selected badge */}
-                    {isSelected && (
-                      <div className="absolute right-2 top-2 rounded-full bg-[#7C3AED] px-2 py-0.5 text-[8px] font-bold text-white md:text-[10px]">
-                        PICKED
-                      </div>
-                    )}
                   </button>
                 );
               })}
@@ -567,6 +535,145 @@ export function BattleScene() {
         ) : (
           /* ==================== BATTLE PHASE ==================== */
           <div className="flex h-full w-full max-w-[1400px] flex-col items-center gap-2 md:gap-4">
+            {/* Pre-bet overlay */}
+            {phase === "prebet" && (
+              <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/80 backdrop-blur-md">
+                <div className="flex w-full max-w-[440px] flex-col items-center gap-5 rounded-[16px] border border-[#2E1065] bg-[#0B0B14] p-6 md:p-8">
+                  <div className="flex items-center gap-2">
+                    <CircleDollarSign className="h-5 w-5 text-[#FFD700]" />
+                    <h2
+                      className="text-[16px] font-bold tracking-[2px] text-white md:text-[18px]"
+                      style={{ fontFamily: "var(--font-orbitron)" }}
+                    >
+                      PLACE YOUR BET
+                    </h2>
+                  </div>
+                  <p className="text-[12px] text-[#6B6B80]">
+                    Wager on the outcome before the fight begins
+                  </p>
+
+                  {/* Fighter selection */}
+                  <div className="flex w-full gap-3">
+                    <button
+                      onClick={() => setPreBetSide("left")}
+                      className={`flex flex-1 flex-col items-center gap-1 rounded-[10px] border p-3 transition-all ${
+                        preBetSide === "left"
+                          ? "border-[#7C3AED] bg-[#7C3AED]/10 shadow-[0_0_16px_#7C3AED30]"
+                          : "border-[#2E1065] bg-black/50 hover:border-[#7C3AED]/40"
+                      }`}
+                    >
+                      <span
+                        className="text-[11px] font-bold tracking-[1px]"
+                        style={{ color: leftFighter!.accentColor, fontFamily: "var(--font-orbitron)" }}
+                      >
+                        {leftFighter!.name}
+                      </span>
+                      <span className="text-[14px] font-bold text-white">{odds.left.toFixed(2)}x</span>
+                    </button>
+                    <button
+                      onClick={() => setPreBetSide("right")}
+                      className={`flex flex-1 flex-col items-center gap-1 rounded-[10px] border p-3 transition-all ${
+                        preBetSide === "right"
+                          ? "border-[#FF6B35] bg-[#FF6B35]/10 shadow-[0_0_16px_#FF6B3530]"
+                          : "border-[#2E1065] bg-black/50 hover:border-[#FF6B35]/40"
+                      }`}
+                    >
+                      <span
+                        className="text-[11px] font-bold tracking-[1px]"
+                        style={{ color: rightFighter!.accentColor, fontFamily: "var(--font-orbitron)" }}
+                      >
+                        {rightFighter!.name}
+                      </span>
+                      <span className="text-[14px] font-bold text-white">{odds.right.toFixed(2)}x</span>
+                    </button>
+                  </div>
+
+                  {/* Currency selector */}
+                  <div className="flex w-full rounded-[8px] border border-[#2E1065] bg-black/50 p-1">
+                    <button
+                      onClick={() => setPreBetCurrency("MON")}
+                      className={`flex-1 rounded-[6px] py-2 text-[12px] font-bold transition-all ${
+                        preBetCurrency === "MON"
+                          ? "bg-[#7C3AED]/20 text-white"
+                          : "text-[#6B6B80] hover:text-white"
+                      }`}
+                      style={{ fontFamily: "var(--font-orbitron)" }}
+                    >
+                      MON
+                    </button>
+                    <button
+                      onClick={() => setPreBetCurrency("GLADI")}
+                      className={`flex-1 rounded-[6px] py-2 text-[12px] font-bold transition-all ${
+                        preBetCurrency === "GLADI"
+                          ? "bg-[#FFD700]/20 text-[#FFD700]"
+                          : "text-[#6B6B80] hover:text-white"
+                      }`}
+                      style={{ fontFamily: "var(--font-orbitron)" }}
+                    >
+                      GLADI
+                    </button>
+                  </div>
+
+                  {/* Amount input */}
+                  <div className="flex w-full items-center gap-2 rounded-[8px] border border-[#2E1065] bg-black/50 px-3 py-2.5">
+                    <input
+                      type="number"
+                      placeholder="Enter amount"
+                      value={preBetAmount}
+                      onChange={(e) => setPreBetAmount(e.target.value)}
+                      className="w-full bg-transparent text-[14px] text-white outline-none placeholder:text-[#6B6B80] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    />
+                    <span className="shrink-0 text-[12px] font-bold text-[#6B6B80]">{preBetCurrency}</span>
+                  </div>
+
+                  {/* Quick amounts */}
+                  <div className="flex w-full gap-2">
+                    {[50, 100, 250, 500].map((amt) => (
+                      <button
+                        key={amt}
+                        onClick={() => setPreBetAmount(String(amt))}
+                        className="flex-1 rounded-[6px] border border-[#2E1065] bg-black/50 py-2 text-[12px] font-medium text-[#6B6B80] transition-colors hover:border-[#7C3AED]/40 hover:text-white"
+                      >
+                        {amt}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Payout preview */}
+                  {preBetSide && preBetAmount && (
+                    <div className="flex w-full items-center justify-between rounded-[8px] bg-[#7C3AED]/5 px-4 py-2.5">
+                      <span className="text-[12px] text-[#6B6B80]">Est. Payout</span>
+                      <span
+                        className="text-[14px] font-bold text-[#A855F7]"
+                        style={{ fontFamily: "var(--font-orbitron)" }}
+                      >
+                        {(Number(preBetAmount) * (preBetSide === "left" ? odds.left : odds.right)).toFixed(1)} {preBetCurrency}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Actions */}
+                  <div className="flex w-full gap-3">
+                    <button
+                      onClick={handleSkipBet}
+                      className="flex-1 rounded-[10px] border border-[#2E1065] py-3 text-[13px] font-medium text-[#6B6B80] transition-colors hover:border-[#7C3AED]/40 hover:text-white"
+                    >
+                      Skip
+                    </button>
+                    <button
+                      onClick={handlePlacePreBet}
+                      disabled={!preBetSide || !preBetAmount}
+                      className="flex flex-1 items-center justify-center gap-2 rounded-[10px] bg-gradient-to-br from-[#7C3AED] to-[#A855F7] py-3 text-[13px] font-bold text-white transition-all hover:shadow-[0_0_20px_#7C3AED50] disabled:opacity-40"
+                      style={{ fontFamily: "var(--font-orbitron)" }}
+                    >
+                      <Zap className="h-4 w-4" />
+                      Place Bet
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Countdown overlay */}
             {phase === "countdown" && (
               <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/60 backdrop-blur-sm">
@@ -589,9 +696,20 @@ export function BattleScene() {
 
             {/* Match title */}
             <div className="flex flex-col items-center gap-0.5">
-              <span className="text-[10px] font-medium uppercase tracking-[3px] text-[#7C3AED] md:text-[11px]">
-                {phase === "fighting" ? `Turn ${turnCount}` : phase === "countdown" ? "Get Ready" : "Match Complete"}
-              </span>
+              <div className="flex items-center gap-2">
+                {isSpectating && (
+                  <span className="flex items-center gap-1">
+                    <span className="relative flex h-2 w-2">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-75" />
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
+                    </span>
+                    <span className="text-[10px] font-bold tracking-[1px] text-red-400">LIVE</span>
+                  </span>
+                )}
+                <span className="text-[10px] font-medium uppercase tracking-[3px] text-[#7C3AED] md:text-[11px]">
+                  {phase === "fighting" ? `Turn ${turnCount}` : phase === "countdown" ? "Get Ready" : phase === "prebet" ? "Place Your Bets" : "Match Complete"}
+                </span>
+              </div>
               <h1
                 className="text-center text-[16px] font-bold tracking-[-0.5px] text-white md:text-[20px]"
                 style={{ fontFamily: "var(--font-orbitron)" }}
@@ -613,6 +731,8 @@ export function BattleScene() {
                   rightOdds={odds.right}
                   battleStarted={phase === "fighting" || phase === "victory"}
                   winner={winner}
+                  initialBet={userBet}
+                  isSpectating={isSpectating}
                 />
               </div>
 
@@ -672,6 +792,8 @@ export function BattleScene() {
                     rightOdds={odds.right}
                     battleStarted={phase === "fighting" || phase === "victory"}
                     winner={winner}
+                    initialBet={userBet}
+                    isSpectating={isSpectating}
                   />
                 </div>
               </div>

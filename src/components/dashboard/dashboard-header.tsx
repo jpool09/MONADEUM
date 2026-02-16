@@ -22,12 +22,6 @@ export function DashboardHeader() {
           height={32}
           className="h-8 w-8 object-contain"
         />
-        <span
-          className="text-[11px] font-bold tracking-[3px] text-[#6B6B80] md:text-[13px]"
-          style={{ fontFamily: "var(--font-orbitron)" }}
-        >
-          MONADEUM DASHBOARD
-        </span>
       </div>
 
       <div className="flex items-center gap-2">

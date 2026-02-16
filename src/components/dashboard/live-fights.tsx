@@ -111,7 +111,7 @@ export function LiveFights() {
                 </span>
               </div>
               <Link
-                href="/arena"
+                href={`/arena?watch=${fight.id}`}
                 className="rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#A855F7] px-3 py-1.5 text-[11px] font-semibold text-white transition-all hover:shadow-[0_0_16px_#7C3AED50]"
               >
                 Watch Live
