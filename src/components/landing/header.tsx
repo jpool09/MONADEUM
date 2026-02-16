@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import Image from "next/image";
 import { Menu, X } from "lucide-react";
 import { Starfield } from "./starfield";
@@ -50,12 +51,18 @@ export function Header() {
 
         {/* CTA - desktop only */}
         <div className="hidden items-center justify-end gap-4 lg:flex">
-          <button className="w-[120px] rounded-lg border border-[#7C3AED] py-2.5 text-center text-[14px] font-medium text-[#C084FC] transition-colors hover:bg-[#7C3AED]/10">
+          <Link
+            href="/auth"
+            className="w-[120px] rounded-lg border border-[#7C3AED] py-2.5 text-center text-[14px] font-medium text-[#C084FC] transition-colors hover:bg-[#7C3AED]/10"
+          >
             Log In
-          </button>
-          <span className="w-[120px] cursor-not-allowed rounded-lg bg-[#7C3AED]/30 py-2.5 text-center text-[14px] font-semibold text-white/50">
-            Coming Soon
-          </span>
+          </Link>
+          <Link
+            href="/auth"
+            className="w-[120px] rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#A855F7] py-2.5 text-center text-[14px] font-semibold text-white transition-all hover:shadow-[0_0_20px_rgba(124,58,237,0.4)]"
+          >
+            Enter Arena
+          </Link>
         </div>
 
         {/* Hamburger - mobile only */}
@@ -88,12 +95,20 @@ export function Header() {
             </a>
           ))}
           <div className="mt-3 flex flex-col gap-3 border-t border-[#2E1065] pt-4">
-            <button className="rounded-lg border border-[#7C3AED] py-3 text-center text-[14px] font-medium text-[#C084FC] transition-colors hover:bg-[#7C3AED]/10">
+            <Link
+              href="/auth"
+              onClick={() => setMobileMenuOpen(false)}
+              className="rounded-lg border border-[#7C3AED] py-3 text-center text-[14px] font-medium text-[#C084FC] transition-colors hover:bg-[#7C3AED]/10"
+            >
               Log In
-            </button>
-            <span className="cursor-not-allowed rounded-lg bg-[#7C3AED]/30 py-3 text-center text-[14px] font-semibold text-white/50">
-              Coming Soon
-            </span>
+            </Link>
+            <Link
+              href="/auth"
+              onClick={() => setMobileMenuOpen(false)}
+              className="rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#A855F7] py-3 text-center text-[14px] font-semibold text-white transition-all hover:shadow-[0_0_20px_rgba(124,58,237,0.4)]"
+            >
+              Enter Arena
+            </Link>
           </div>
         </nav>
       )}
