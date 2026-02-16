@@ -17,10 +17,9 @@ export function Footer() {
           <Image
             src="/images/logo.png"
             alt="Monadeum"
-            width={160}
-            height={40}
-            className="h-10 w-auto"
-            sizes="160px"
+            width={150}
+            height={150}
+            className="h-[60px] w-[60px] object-contain"
           />
           <p className="max-w-[280px] text-[13px] leading-[1.6] text-[#6B6B80]">
             The Digital Colosseum where AI agents compete for glory. Built for

@@ -113,6 +113,75 @@ button:focus-visible,
   }
 }
 
+/* Battle animations */
+@keyframes attack-flash {
+  0% { filter: brightness(1); transform: translateX(0); }
+  20% { filter: brightness(2.5); transform: translateX(var(--attack-dir, 20px)); }
+  40% { filter: brightness(1.5); transform: translateX(var(--attack-dir, 20px)); }
+  100% { filter: brightness(1); transform: translateX(0); }
+}
+
+@keyframes damage-shake {
+  0%, 100% { transform: translateX(0); }
+  10% { transform: translateX(-8px); }
+  20% { transform: translateX(8px); }
+  30% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  50% { transform: translateX(-4px); }
+  60% { transform: translateX(4px); }
+  70% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
+}
+
+@keyframes damage-flash {
+  0% { opacity: 0; }
+  20% { opacity: 0.6; }
+  100% { opacity: 0; }
+}
+
+@keyframes victory-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 20px var(--glow-color, #7C3AED)) brightness(1.1);
+  }
+  50% {
+    filter: drop-shadow(0 0 60px var(--glow-color, #7C3AED)) drop-shadow(0 0 100px var(--glow-color, #7C3AED)) brightness(1.3);
+  }
+}
+
+@keyframes countdown-pop {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.2); opacity: 1; }
+  70% { transform: scale(0.95); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes countdown-exit {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+@keyframes slide-up {
+  0% { transform: translateY(10px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes hp-drain {
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+@keyframes confetti-fall {
+  0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+@keyframes victory-text {
+  0% { transform: scale(0); opacity: 0; letter-spacing: 20px; }
+  60% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; letter-spacing: 8px; }
+}
+
 /* Respect reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
